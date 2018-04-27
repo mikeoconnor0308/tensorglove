@@ -1,5 +1,5 @@
 # tensorglove
-A preliminary hand post recognition library using Tensorflow, for use with the Noitom Hi5 gloves. 
+A hand pose recognition library using Tensorflow, for use with the Noitom Hi5 gloves. 
 This project was the result of 2 days playing around with the gloves and tensorflow, and so is extremely preliminary. 
 
 ## Getting Started
