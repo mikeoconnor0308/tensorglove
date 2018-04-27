@@ -10,12 +10,15 @@ import glovedata
 
 
 class OscServer:
-
+    """
+    Simple test class for serving gesture predictions over OSC.
+    """
 
     def predict(self, address, *args):
         print('Message received', args)
-
+        # expects a list of all the features, in the order of the feature list.
         predict_x = dict(zip(FEATURES, [[float(x)] for x in args]))
+        # perform the prediction.
         predictions = self.classifier.predict(
             input_fn=lambda: glovedata.eval_input_fn(predict_x,
                                                      labels=None,
@@ -33,6 +36,7 @@ class OscServer:
         self.classifier = classifier
 
         self.dispatcher = dispatcher.Dispatcher()
+        # attach the osc address to the predict method.
         self.dispatcher.map("/predict", self.predict)
 
         self.server = osc_server.ThreadingOSCUDPServer(

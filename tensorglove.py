@@ -12,6 +12,7 @@ parser.add_argument('--train_steps', default=5, type=int,
                     help='number of training steps')
 parser.add_argument('--run_server', default=True, help='whether to run prediction server')
 
+
 def serving_input_receiver_fn():
     """Build the serving inputs."""
     inputs = {}
@@ -26,9 +27,11 @@ def serving_input_receiver_fn():
     return tf.estimator.export.ServingInputReceiver(features,
                                                     inputs)
 
+
 def run_server(classifier):
     server = tensorglove_osc_server.OscServer("127.0.0.1", 54321, classifier)
     server.run_server()
+
 
 def main(argv):
     args = parser.parse_args(argv[1:])
@@ -78,7 +81,7 @@ def main(argv):
                       5.960465E-08, 5.960463E-08, -0.5976215, 0.8017784, -2.235174E-08, -5.960464E-08, 4.470348E-08, 1,
                       -0.1217117, 0.1238547, -0.6902609, 0.7024146, -5.029142E-08, 3.725291E-08, -0.819152, 0.5735765,
                       5.215406E-08, 5.960463E-08, -0.6427875, 0.7660446]
-    # the data is expected to be a list of feature values (as it is configured for batching
+    # the data is expected to be a list of feature values (as it is configured for batching)
     predict_x = dict(zip(FEATURES, [[x] for x in feature_values]))
 
     predictions = classifier.predict(
@@ -86,7 +89,7 @@ def main(argv):
                                                  labels=None,
                                                  batch_size=args.batch_size))
 
-    template = ('\nPrediction is "{}" ({:.1f}%), expected "{}"')
+    template = '\nPrediction is "{}" ({:.1f}%), expected "{}"'
 
     for pred_dict, expec in zip(predictions, expected):
         class_id = pred_dict['class_ids'][0]
@@ -102,6 +105,7 @@ def main(argv):
 
     if args.run_server:
         run_server(classifier)
+
 
 if __name__ == '__main__':
     tf.logging.set_verbosity(tf.logging.INFO)

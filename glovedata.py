@@ -42,17 +42,13 @@ def load_data(path="./data/*.csv", y_name='Gesture'):
 
     all_files = glob.glob(path)
     data = pd.concat((pd.read_csv(f, header=0) for f in all_files))
-
-    print(data[y_name])
-
     # convert strings to ints.
     # {'None': 0, 'Fist': 1, 'Click': 2, 'Point': 3}
     mapping = dict(zip(GESTURES, range(len(GESTURES))))
     data.replace({y_name: mapping}, inplace = True)
     data.convert_objects()
-    print('applied replace')
-    print(data[y_name])
 
+    # split up data in a 4/5 split.
     train, test = train_test_split(data, test_size=0.2)
     train_x, train_y = train, train.pop(y_name)
     train_y.convert_objects()
