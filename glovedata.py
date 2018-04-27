@@ -6,6 +6,37 @@ from sklearn.model_selection import train_test_split
 
 GESTURES = ['None', 'Fist', 'Click', 'Point']
 
+FEATURES = ["Human_RightForeArm_Quat_X", "Human_RightForeArm_Quat_Y", "Human_RightForeArm_Quat_Z",
+            "Human_RightForeArm_Quat_W", "Human_RightHand_Quat_X", "Human_RightHand_Quat_Y",
+            "Human_RightHand_Quat_Z", "Human_RightHand_Quat_W", "Human_RightHandThumb1_Quat_X",
+            "Human_RightHandThumb1_Quat_Y", "Human_RightHandThumb1_Quat_Z", "Human_RightHandThumb1_Quat_W",
+            "Human_RightHandThumb2_Quat_X", "Human_RightHandThumb2_Quat_Y", "Human_RightHandThumb2_Quat_Z",
+            "Human_RightHandThumb2_Quat_W", "Human_RightHandThumb3_Quat_X", "Human_RightHandThumb3_Quat_Y",
+            "Human_RightHandThumb3_Quat_Z", "Human_RightHandThumb3_Quat_W", "Human_RightInHandIndex_Quat_X",
+            "Human_RightInHandIndex_Quat_Y", "Human_RightInHandIndex_Quat_Z", "Human_RightInHandIndex_Quat_W",
+            "Human_RightInHandIndex1_Quat_X", "Human_RightInHandIndex1_Quat_Y", "Human_RightInHandIndex1_Quat_Z",
+            "Human_RightInHandIndex1_Quat_W", "Human_RightInHandIndex2_Quat_X", "Human_RightInHandIndex2_Quat_Y",
+            "Human_RightInHandIndex2_Quat_Z", "Human_RightInHandIndex2_Quat_W", "Human_RightInHandIndex3_Quat_X",
+            "Human_RightInHandIndex3_Quat_Y", "Human_RightInHandIndex3_Quat_Z", "Human_RightInHandIndex3_Quat_W",
+            "Human_RightInHandMiddle_Quat_X", "Human_RightInHandMiddle_Quat_Y", "Human_RightInHandMiddle_Quat_Z",
+            "Human_RightInHandMiddle_Quat_W", "Human_RightInHandMiddle1_Quat_X", "Human_RightInHandMiddle1_Quat_Y",
+            "Human_RightInHandMiddle1_Quat_Z", "Human_RightInHandMiddle1_Quat_W",
+            "Human_RightInHandMiddle2_Quat_X", "Human_RightInHandMiddle2_Quat_Y",
+            "Human_RightInHandMiddle2_Quat_Z", "Human_RightInHandMiddle2_Quat_W",
+            "Human_RightInHandMiddle3_Quat_X", "Human_RightInHandMiddle3_Quat_Y",
+            "Human_RightInHandMiddle3_Quat_Z", "Human_RightInHandMiddle3_Quat_W", "Human_RightInHandRing_Quat_X",
+            "Human_RightInHandRing_Quat_Y", "Human_RightInHandRing_Quat_Z", "Human_RightInHandRing_Quat_W",
+            "Human_RightInHandRing1_Quat_X", "Human_RightInHandRing1_Quat_Y", "Human_RightInHandRing1_Quat_Z",
+            "Human_RightInHandRing1_Quat_W", "Human_RightInHandRing2_Quat_X", "Human_RightInHandRing2_Quat_Y",
+            "Human_RightInHandRing2_Quat_Z", "Human_RightInHandRing2_Quat_W", "Human_RightInHandRing3_Quat_X",
+            "Human_RightInHandRing3_Quat_Y", "Human_RightInHandRing3_Quat_Z", "Human_RightInHandRing3_Quat_W",
+            "Human_RightInHandPinky_Quat_X", "Human_RightInHandPinky_Quat_Y", "Human_RightInHandPinky_Quat_Z",
+            "Human_RightInHandPinky_Quat_W", "Human_RightInHandPinky1_Quat_X", "Human_RightInHandPinky1_Quat_Y",
+            "Human_RightInHandPinky1_Quat_Z", "Human_RightInHandPinky1_Quat_W", "Human_RightInHandPinky2_Quat_X",
+            "Human_RightInHandPinky2_Quat_Y", "Human_RightInHandPinky2_Quat_Z", "Human_RightInHandPinky2_Quat_W",
+            "Human_RightInHandPinky3_Quat_X", "Human_RightInHandPinky3_Quat_Y", "Human_RightInHandPinky3_Quat_Z",
+            "Human_RightInHandPinky3_Quat_W"]
+
 def load_data(path="./data/*.csv", y_name='Gesture'):
     """Returns the dataset as (train_x, train_y), (test_x, test_y)."""
 
@@ -60,3 +91,5 @@ def eval_input_fn(features, labels, batch_size):
 
     # Return the dataset.
     return dataset
+
+
