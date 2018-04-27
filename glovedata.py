@@ -4,6 +4,8 @@ import glob
 from sklearn.model_selection import train_test_split
 
 
+GESTURES = ['None', 'Fist', 'Click', 'Point']
+
 def load_data(path="./data/*.csv", y_name='Gesture'):
     """Returns the dataset as (train_x, train_y), (test_x, test_y)."""
 
@@ -13,7 +15,8 @@ def load_data(path="./data/*.csv", y_name='Gesture'):
     print(data[y_name])
 
     # convert strings to ints.
-    mapping = {'None': 0, 'Fist': 1, 'Click': 2, 'Point': 3}
+    # {'None': 0, 'Fist': 1, 'Click': 2, 'Point': 3}
+    mapping = dict(zip(GESTURES, range(len(GESTURES))))
     data.replace({y_name: mapping}, inplace = True)
     data.convert_objects()
     print('applied replace')

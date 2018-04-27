@@ -3,8 +3,8 @@ import tensorflow as tf
 import glovedata
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--batch_size', default=5, type=int, help='batch size')
-parser.add_argument('--train_steps', default=800, type=int,
+parser.add_argument('--batch_size', default=100, type=int, help='batch size')
+parser.add_argument('--train_steps', default=20, type=int,
                     help='number of training steps')
 
 feature_names = ['Human_RightForeArm_Quat_X','Human_RightForeArm_Quat_Y','Human_RightForeArm_Quat_Z','Human_RightForeArm_Quat_W','Human_RightHand_Quat_X','Human_RightHand_Quat_Y','Human_RightHand_Quat_Z','Human_RightHand_Quat_W','Human_RightHandThumb1_Quat_X','Human_RightHandThumb1_Quat_Y','Human_RightHandThumb1_Quat_Z','Human_RightHandThumb1_Quat_W','Human_RightHandThumb2_Quat_X','Human_RightHandThumb2_Quat_Y','Human_RightHandThumb2_Quat_Z','Human_RightHandThumb2_Quat_W','Human_RightHandThumb3_Quat_X','Human_RightHandThumb3_Quat_Y','Human_RightHandThumb3_Quat_Z','Human_RightHandThumb3_Quat_W','Human_RightInHandIndex_Quat_X','Human_RightInHandIndex_Quat_Y','Human_RightInHandIndex_Quat_Z','Human_RightInHandIndex_Quat_W','Human_RightInHandIndex1_Quat_X','Human_RightInHandIndex1_Quat_Y','Human_RightInHandIndex1_Quat_Z','Human_RightInHandIndex1_Quat_W','Human_RightInHandIndex2_Quat_X','Human_RightInHandIndex2_Quat_Y','Human_RightInHandIndex2_Quat_Z','Human_RightInHandIndex2_Quat_W','Human_RightInHandIndex3_Quat_X','Human_RightInHandIndex3_Quat_Y','Human_RightInHandIndex3_Quat_Z','Human_RightInHandIndex3_Quat_W','Human_RightInHandMiddle_Quat_X','Human_RightInHandMiddle_Quat_Y','Human_RightInHandMiddle_Quat_Z','Human_RightInHandMiddle_Quat_W','Human_RightInHandMiddle1_Quat_X','Human_RightInHandMiddle1_Quat_Y','Human_RightInHandMiddle1_Quat_Z','Human_RightInHandMiddle1_Quat_W','Human_RightInHandMiddle2_Quat_X','Human_RightInHandMiddle2_Quat_Y','Human_RightInHandMiddle2_Quat_Z','Human_RightInHandMiddle2_Quat_W','Human_RightInHandMiddle3_Quat_X','Human_RightInHandMiddle3_Quat_Y','Human_RightInHandMiddle3_Quat_Z','Human_RightInHandMiddle3_Quat_W','Human_RightInHandRing_Quat_X','Human_RightInHandRing_Quat_Y','Human_RightInHandRing_Quat_Z','Human_RightInHandRing_Quat_W','Human_RightInHandRing1_Quat_X','Human_RightInHandRing1_Quat_Y','Human_RightInHandRing1_Quat_Z','Human_RightInHandRing1_Quat_W','Human_RightInHandRing2_Quat_X','Human_RightInHandRing2_Quat_Y','Human_RightInHandRing2_Quat_Z','Human_RightInHandRing2_Quat_W','Human_RightInHandRing3_Quat_X','Human_RightInHandRing3_Quat_Y','Human_RightInHandRing3_Quat_Z','Human_RightInHandRing3_Quat_W','Human_RightInHandPinky_Quat_X','Human_RightInHandPinky_Quat_Y','Human_RightInHandPinky_Quat_Z','Human_RightInHandPinky_Quat_W','Human_RightInHandPinky1_Quat_X','Human_RightInHandPinky1_Quat_Y','Human_RightInHandPinky1_Quat_Z','Human_RightInHandPinky1_Quat_W','Human_RightInHandPinky2_Quat_X','Human_RightInHandPinky2_Quat_Y','Human_RightInHandPinky2_Quat_Z','Human_RightInHandPinky2_Quat_W','Human_RightInHandPinky3_Quat_X','Human_RightInHandPinky3_Quat_Y','Human_RightInHandPinky3_Quat_Z','Human_RightInHandPinky3_Quat_W']
@@ -54,6 +54,33 @@ def main(argv):
     eval_result = classifier.evaluate(
         input_fn=lambda: glovedata.eval_input_fn(test_x, test_y,
                                                  args.batch_size))
+
+    print('\nTest set accuracy: {accuracy:0.3f}\n'.format(**eval_result))
+
+
+
+    # perform a sample prediction
+
+    # Generate predictions from the model
+    expected = ['Fist']
+    feature_values = [0,0,0,1,0.2298394,0.9228836,-0.1887825,-0.2445833,0.03349165,-0.2397906,-0.1800468,0.9533949,-0.07355202,0.2745002,-0.2481479,0.9261007,-4.470348E-08,0.2213377,1.490116E-08,0.9751973,-2.235174E-08,-5.960464E-08,4.470348E-08,1,0.09148686,-0.09309785,-0.6949129,0.7071485,7.105427E-15,7.45058E-08,-0.7191889,0.6948146,1.490116E-08,-1.490116E-08,-0.566272,0.8242185,-2.235174E-08,-5.960464E-08,4.470348E-08,1,-3.725291E-08,5.960464E-08,-0.7009093,0.7132504,1.490116E-08,3.352762E-08,-0.772563,0.6349381,-7.450572E-09,2.980232E-08,-0.6148145,0.7886717,-2.235174E-08,-5.960464E-08,4.470348E-08,1,-0.06108833,0.06216392,-0.6982422,0.7105362,-3.352762E-08,1.490116E-08,-0.7539417,0.6569413,5.960465E-08,5.960463E-08,-0.5976215,0.8017784,-2.235174E-08,-5.960464E-08,4.470348E-08,1,-0.1217117,0.1238547,-0.6902609,0.7024146,-5.029142E-08,3.725291E-08,-0.819152,0.5735765,5.215406E-08,5.960463E-08,-0.6427875,0.7660446]
+    # the data is expected to be a list of feature values (as it is configured for batching
+    predict_x = dict(zip(feature_names, [[x]for x in feature_values]))
+
+    predictions = classifier.predict(
+        input_fn=lambda: glovedata.eval_input_fn(predict_x,
+                                                 labels=None,
+                                                 batch_size=args.batch_size))
+
+    template = ('\nPrediction is "{}" ({:.1f}%), expected "{}"')
+
+    for pred_dict, expec in zip(predictions, expected):
+        class_id = pred_dict['class_ids'][0]
+        probability = pred_dict['probabilities'][class_id]
+
+        print(template.format(glovedata.GESTURES[class_id],
+                              100 * probability, expec))
+
 
     export_dir = classifier.export_savedmodel(
     export_dir_base="model_export",

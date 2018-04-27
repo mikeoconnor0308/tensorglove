@@ -1,3 +1,7 @@
 .idea
 
 model/
+
+model_export/
+
+__pycache__/
