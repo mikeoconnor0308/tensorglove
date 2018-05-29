@@ -1,6 +1,5 @@
 from pythonosc import osc_message_builder
 from pythonosc import udp_client
-
 from glovedata import FEATURES
 from pythonosc import dispatcher
 from pythonosc import osc_server

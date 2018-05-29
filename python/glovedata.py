@@ -3,7 +3,6 @@ import tensorflow as tf
 import glob
 from sklearn.model_selection import train_test_split
 
-
 GESTURES = ['None', 'Fist', 'Click', 'Point']
 
 FEATURES = ["Human_RightForeArm_Quat_X", "Human_RightForeArm_Quat_Y", "Human_RightForeArm_Quat_Z",
@@ -37,8 +36,14 @@ FEATURES = ["Human_RightForeArm_Quat_X", "Human_RightForeArm_Quat_Y", "Human_Rig
             "Human_RightInHandPinky3_Quat_X", "Human_RightInHandPinky3_Quat_Y", "Human_RightInHandPinky3_Quat_Z",
             "Human_RightInHandPinky3_Quat_W"]
 
+
 def load_data(path="./data/*.csv", y_name='Gesture'):
-    """Returns the dataset as (train_x, train_y), (test_x, test_y)."""
+    """
+    Reads data files in the given path, and returns the dataset as (train_x, train_y), (test_x, test_y).
+    :param path: Path to files
+    :param y_name: Target feature name
+    :return: Dataset
+    """
 
     all_files = glob.glob(path)
     data = pd.concat((pd.read_csv(f, header=0) for f in all_files))
@@ -58,7 +63,9 @@ def load_data(path="./data/*.csv", y_name='Gesture'):
 
 
 def train_input_fn(features, labels, batch_size):
-    """An input function for training"""
+    """
+    An input function for training the neural network.
+    """
     # Convert the inputs to a Dataset.
     dataset = tf.data.Dataset.from_tensor_slices((dict(features), labels))
 
@@ -70,7 +77,9 @@ def train_input_fn(features, labels, batch_size):
 
 
 def eval_input_fn(features, labels, batch_size):
-    """An input function for evaluation or prediction"""
+    """
+    An input function for evaluation or prediction
+    """
     features = dict(features)
     if labels is None:
         # No labels, use only features.

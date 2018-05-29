@@ -1,14 +1,12 @@
 import argparse
-
 import tensorflow as tf
-
 import glovedata
 from glovedata import FEATURES
 import tensorglove_osc_server
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--batch_size', default=100, type=int, help='batch size')
-parser.add_argument('--train_steps', default=5, type=int,
+parser.add_argument('--train_steps', default=2000, type=int,
                     help='number of training steps')
 parser.add_argument('--run_server', default=True, help='whether to run prediction server')
 
@@ -29,11 +27,21 @@ def serving_input_receiver_fn():
 
 
 def run_server(classifier):
+    """
+    Runs the OSC server for providing predictions.
+    :param classifier: Trained tensorflow classifier
+    :return:
+    """
     server = tensorglove_osc_server.OscServer("127.0.0.1", 54321, classifier)
     server.run_server()
 
 
 def main(argv):
+    """
+    Run the training and serving.
+    :param argv: Command line arguments.
+    :return:
+    """
     args = parser.parse_args(argv[1:])
 
     # Fetch the data
