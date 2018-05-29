@@ -2,6 +2,8 @@
 A hand pose recognition library using Tensorflow, for use with the Noitom Hi5 gloves. 
 This project was the result of 2 days playing around with the gloves and tensorflow, and so is extremely preliminary. 
 
+![Alt Text](images/tensorglove_v0.1.gif)
+
 ## Getting Started
 
 The repository consists of two components: a Unity project for performing the hand tracking in VR, and a set of python scripts for performing
