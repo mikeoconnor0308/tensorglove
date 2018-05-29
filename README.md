@@ -28,3 +28,15 @@ are training for (currently from None, Click, Fist and Point) and press L or R t
 
 The `TensorflowOscGesture` script can be used to communicate with the tensorglove server. The basic demo only works for the right hand and 
 changes the colour of the hand based on the gesture detected.  
+
+## Contributing 
+
+The following is a list of ideas for this project.
+
+* More training data. 
+* Train the left hand! 
+* Optimize the neural network, tuning hyperparameters. 
+* Make the gesture control do something!
+* Figure out how to serve the trained [tensorflow model](https://www.tensorflow.org/serving/serving_basic) correctly. 
+* Explore other/simpler machine learning solutions with [scikit-learn](http://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html), or [C# SVM](https://github.com/ccerhan/LibSVMsharp).
+* Explore Microsoft's C# [neural network offering](https://docs.microsoft.com/en-us/cognitive-toolkit/using-cntk-with-csharp). 
