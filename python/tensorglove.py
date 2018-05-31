@@ -52,14 +52,16 @@ def main(argv):
     for key in train_x.keys():
         my_feature_columns.append(tf.feature_column.numeric_column(key=key))
 
+    hidden_units = [12, 10]
+
     # Build 2 hidden layer DNN with 10, 10 units respectively.
     classifier = tf.estimator.DNNClassifier(
         feature_columns=my_feature_columns,
         # Two hidden layers of 10 nodes each.
-        hidden_units=[10, 10],
+        hidden_units=hidden_units,
         # The model must choose between 4 classes.
         n_classes=4,
-        model_dir="model")
+        model_dir="model_{0}_{1}".format(hidden_units[0], hidden_units[1]))
 
     # Train the Model.
     classifier.train(
