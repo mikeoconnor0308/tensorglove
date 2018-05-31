@@ -61,7 +61,6 @@ def load_data(path="./data/*.csv", y_name='Gesture'):
     test_y.convert_objects()
     return (train_x, train_y), (test_x, test_y)
 
-
 def train_input_fn(features, labels, batch_size):
     """
     An input function for training the neural network.
