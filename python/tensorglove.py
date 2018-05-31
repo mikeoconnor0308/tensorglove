@@ -3,6 +3,9 @@ import tensorflow as tf
 import glovedata
 from glovedata import FEATURES
 import tensorglove_osc_server
+from sklearn.model_selection import KFold, cross_val_score
+
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--batch_size', default=100, type=int, help='batch size')
@@ -44,6 +47,8 @@ def main(argv):
     """
     args = parser.parse_args(argv[1:])
 
+
+
     # Fetch the data
     (train_x, train_y), (test_x, test_y) = glovedata.load_data()
 
@@ -52,7 +57,13 @@ def main(argv):
     for key in train_x.keys():
         my_feature_columns.append(tf.feature_column.numeric_column(key=key))
 
+<<<<<<< HEAD
+
+    hidden_units = [12,12]
+    model_dir = "model_{0}_{1}".format(hidden_units[0],hidden_units[1])
+=======
     hidden_units = [12, 10]
+>>>>>>> 17c7d269e790d99e1c8583e3576115b5cc12aecf
 
     # Build 2 hidden layer DNN with 10, 10 units respectively.
     classifier = tf.estimator.DNNClassifier(
@@ -61,7 +72,17 @@ def main(argv):
         hidden_units=hidden_units,
         # The model must choose between 4 classes.
         n_classes=4,
+<<<<<<< HEAD
+        model_dir=model_dir)
+
+
+
+
+    #for dataset in blah: for text_x and test_y
+
+=======
         model_dir="model_{0}_{1}".format(hidden_units[0], hidden_units[1]))
+>>>>>>> 17c7d269e790d99e1c8583e3576115b5cc12aecf
 
     # Train the Model.
     classifier.train(
