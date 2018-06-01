@@ -22,6 +22,10 @@ To run the Unity project, the following plugins will need to be added to the pro
 
 * [Noitom Unity package](https://hi5vrglove.com/downloads)
 * [SteamVR Unity plugin](https://assetstore.unity.com/packages/templates/systems/steamvr-plugin-32647) 
+* [Mixamo Melee Axe Pack](https://assetstore.unity.com/packages/3d/animations/melee-axe-pack-35320) 
+* [Lightning Bolt Effect for Unity](https://assetstore.unity.com/packages/tools/particles-effects/lightning-bolt-effect-for-unity-59471) 
+
+The Standard Character Assets must also be imported, which can be done in Unity from Assets/Import Package/Characters
 
 Open the Unity project (root at the folder `glovetest`) and open the GloveGestureTest scene. 
 
