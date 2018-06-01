@@ -34,3 +34,14 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+
+Assets/Mixamo/
+Assets/Mixamo.meta
+Assets/LightningBolt
+Assets/LightningBolt.meta
+Assets/Standard Assets
+Assets/Standard Assets.meta
+Assets/NoitomHi5/
+Assets/NoitomHi5.meta
+Assets/SteamVR/
+Assets/SteamVR.meta
