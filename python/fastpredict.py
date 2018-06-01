@@ -30,12 +30,12 @@ class FastPredict:
         """
         self.next_features = feature_batch
         if self.first_run:
-            self.batch_size = len(feature_batch)
+            self.batch_size = 1
             self.predictions = self.estimator.predict(
                 input_fn=self.input_fn(self._create_generator))
             self.first_run = False
-        elif self.batch_size != len(feature_batch):
-            raise ValueError("All batches must be of the same size. First-batch:" + str(self.batch_size) + " This-batch:" + str(len(feature_batch)))
+        #elif self.batch_size != len(feature_batch):
+        #    raise ValueError("All batches must be of the same size. First-batch:" + str(self.batch_size) + " This-batch:" + str(len(feature_batch)))
 
         results = []
         for _ in range(self.batch_size):
