@@ -1,45 +1,14 @@
-import argparse
+"""
+Script for training the DNNClassifier.
+"""
 import tensorflow as tf
 import glovedata
 from glovedata import FEATURES
-import tensorglove_osc_server
-from sklearn.model_selection import KFold
-import numpy as np
-import pandas as pd
 import sys
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--batch_size', default=100, type=int, help='batch size')
-parser.add_argument('--train_steps', default=20000, type=int,
-                    help='number of training steps')
-parser.add_argument('--run_server', default=False, help='whether to run prediction server')
-parser.add_argument('--splits', default=10, help='number of splits')
-
-
-def serving_input_receiver_fn():
-    """Build the serving inputs."""
-    inputs = {}
-    for feat in FEATURES:
-        inputs[feat] = tf.placeholder(shape=[None], dtype='float32')
-
-    features = {
-        key: tf.expand_dims(tensor, -1)
-        for key, tensor in inputs.items()
-    }
-
-    return tf.estimator.export.ServingInputReceiver(features,
-                                                    inputs)
-
-
-def run_server(classifier):
-    """
-    Runs the OSC server for providing predictions.
-    :param classifier: Trained tensorflow classifier
-    :return:
-    """
-    server = tensorglove_osc_server.OscServer("127.0.0.1", 54321, classifier)
-    server.run_server()
-
+hidden_units = [18, 20]
+batch_size = 100
+train_steps = 2000
 
 def train_input_fn(features, labels, batch_size):
     """
@@ -79,12 +48,10 @@ def eval_input_fn(features, labels, batch_size):
 
 def main(argv):
     """
-    Run the training and serving.
+    Run the training
     :param argv: Command line arguments.
     :return:
     """
-    global hidden_units
-    args = parser.parse_args(argv[1:])
 
     # Fetch the data
     (train_x_all, train_y_all), (test_x, test_y) = glovedata.load_data()
@@ -94,37 +61,29 @@ def main(argv):
     for key in train_x_all.keys():
         my_feature_columns.append(tf.feature_column.numeric_column(key=key))
 
-    kf = KFold(n_splits=args.splits, shuffle=True)
+    classifier = tf.estimator.DNNClassifier(
+        feature_columns=my_feature_columns,
+        hidden_units=hidden_units,
+        optimizer=tf.train.ProximalAdagradOptimizer(
+            learning_rate=0.1,
+            l1_regularization_strength=0.001
+        ),
+        n_classes=4,
+        model_dir="model")
 
-    for train_idx, val_idx in kf.split(train_x_all, train_y_all):
-        train_x = pd.DataFrame([train_x_all.iloc[i] for i in train_idx])
-        train_y = pd.DataFrame([train_y_all.iloc[i] for i in train_idx])
+    print("Training model")
+    # Train the Model.
+    classifier.train(
+        input_fn=lambda: train_input_fn(train_x_all, train_y_all,
+                                        batch_size),
+        steps=train_steps)
 
-        # Build 2 hidden layer DNN with 10, 10 units respectively.
-        classifier = tf.estimator.DNNClassifier(
-            feature_columns=my_feature_columns,
-            # Two hidden layers of 10 nodes each.
-            hidden_units=hidden_units,
-            # The model must choose between 4 classes.
-            optimizer=tf.train.ProximalAdagradOptimizer(
-                learning_rate=0.1,
-                l1_regularization_strength=0.001
-            ),
-            n_classes=4,
-            model_dir="model_{0}_{1}".format(hidden_units[0], hidden_units[1]))
+    # Evaluate the model.
+    eval_result = classifier.evaluate(
+        input_fn=lambda: eval_input_fn(test_x, test_y,
+                                       batch_size))
 
-        # Train the Model.
-        classifier.train(
-            input_fn=lambda: train_input_fn(train_x, train_y,
-                                            args.batch_size),
-            steps=args.train_steps)
-
-        # Evaluate the model.
-        eval_result = classifier.evaluate(
-            input_fn=lambda: eval_input_fn(test_x, test_y,
-                                           args.batch_size))
-
-        print('\nTest set accuracy: {accuracy:0.3f}\n'.format(**eval_result))
+    print('\nTest set accuracy: {accuracy:0.3f}\n'.format(**eval_result))
 
     # perform a sample prediction
 
@@ -147,7 +106,7 @@ def main(argv):
     predictions = classifier.predict(
         input_fn=lambda: eval_input_fn(predict_x,
                                        labels=None,
-                                       batch_size=args.batch_size))
+                                       batch_size=batch_size))
 
     template = '\nPrediction is "{}" ({:.1f}%), expected "{}"'
 
@@ -158,17 +117,9 @@ def main(argv):
         print(template.format(glovedata.GESTURES[class_id],
                               100 * probability, expec))
 
-    export_dir = classifier.export_savedmodel(
-        export_dir_base="model_export",
-        serving_input_receiver_fn=serving_input_receiver_fn)
-    print('Exported to:', export_dir)
-
-    if args.run_server:
-        run_server(classifier)
-
 
 if __name__ == '__main__':
     # tf.logging.set_verbosity(tf.logging.INFO)
     # tf.app.run(main)
-    hidden_units = [18, 20]
+
     main(sys.argv)

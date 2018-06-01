@@ -6,16 +6,18 @@ import argparse
 import tensorflow as tf
 import glovedata
 from glovedata import FEATURES
-import tensorglove_osc_server
+import osc_server
 import fastpredict
-
+import training
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--run_server', default=True, help='whether to run prediction server')
+parser.add_argument('--model_dir', default="model", help='directory model was saved in.')
 
 
 def generator_evaluation_fn(generator):
     """ Input function for numeric feature columns using the generator. """
+
     def _inner_input_fn():
         datatypes = tuple(len(FEATURES) * [tf.float32])
         dataset = tf.data.Dataset().from_generator(generator, output_types=datatypes).batch(1)
@@ -33,7 +35,7 @@ def run_server(classifier):
     :param classifier: Trained tensorflow classifier
     :return:
     """
-    server = tensorglove_osc_server.OscServer("127.0.0.1", 54321, classifier)
+    server = osc_server.OscServer("127.0.0.1", 54321, classifier)
     server.run_server()
 
 
@@ -45,13 +47,13 @@ def main(argv):
     """
     args = parser.parse_args(argv[1:])
 
+    model_dir = args.model_dir
     # Feature columns describe how to use the input.
     my_feature_columns = []
-    for key in glovedata.FEATURES.keys():
+    for key in glovedata.FEATURES:
         my_feature_columns.append(tf.feature_column.numeric_column(key=key))
 
-    hidden_units = [18,20]
-    model_dir = "model"
+    hidden_units = training.hidden_units
 
     # Wrap the classifier in the FastPredict class to improve prediction speeds.
     classifier = fastpredict.FastPredict(tf.estimator.DNNClassifier(

@@ -16,3 +16,5 @@ python/\.ipynb_checkpoints/
 glovetest/ProjectSettings/
 
 python/model_best/
+
+\.DS_Store
