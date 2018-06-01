@@ -22,12 +22,11 @@ class OscServer:
         """
         print('Message received', args)
         # expects a list of all the features, in the order of the feature list.
-        predict_x = dict(zip(FEATURES, [[float(x)] for x in args]))
+        # old way of doing things.
+        # predict_x = dict(zip(FEATURES, [[float(x)] for x in args]))
+        predict_x = tuple([[float(x)] for x in args])
         # perform the prediction.
-        predictions = self.classifier.predict(
-            input_fn=lambda: glovedata.eval_input_fn(predict_x,
-                                                     labels=None,
-                                                     batch_size=100))
+        predictions = self.classifier.predict(predict_x)
 
         for pred_dict in predictions:
             class_id = pred_dict['class_ids'][0]

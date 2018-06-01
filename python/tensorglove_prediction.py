@@ -3,29 +3,12 @@ import tensorflow as tf
 import glovedata
 from glovedata import FEATURES
 import tensorglove_osc_server
-
+import fastpredict
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--batch_size', default=100, type=int, help='batch size')
-parser.add_argument('--train_steps', default=2000, type=int,
-                    help='number of training steps')
 parser.add_argument('--run_server', default=True, help='whether to run prediction server')
-
-
-def serving_input_receiver_fn():
-    """Build the serving inputs."""
-    inputs = {}
-    for feat in FEATURES:
-        inputs[feat] = tf.placeholder(shape=[None], dtype='float32')
-
-    features = {
-        key: tf.expand_dims(tensor, -1)
-        for key, tensor in inputs.items()
-    }
-
-    return tf.estimator.export.ServingInputReceiver(features,
-                                                    inputs)
 
 
 def run_server(classifier):
@@ -54,40 +37,18 @@ def main(argv):
     for key in train_x.keys():
         my_feature_columns.append(tf.feature_column.numeric_column(key=key))
 
-    hidden_units = [12,12]
-    model_dir = "model_{0}_{1}".format(hidden_units[0],hidden_units[1])
-    hidden_units = [12, 10]
+    hidden_units = [18,20]
+    model_dir = "model_best"
 
-    # Build 2 hidden layer DNN with 10, 10 units respectively.
-    classifier = tf.estimator.DNNClassifier(
+    classifier = fastpredict.FastPredict(tf.estimator.DNNClassifier(
         feature_columns=my_feature_columns,
         # Two hidden layers of 10 nodes each.
         hidden_units=hidden_units,
         # The model must choose between 4 classes.
         n_classes=4,
-        model_dir=model_dir)
+        model_dir=model_dir), glovedata.generator_evaluation_fn
+    )
 
-
-
-
-    #for dataset in blah: for text_x and test_y
-
-    model_dir="model_{0}_{1}".format(hidden_units[0], hidden_units[1])
-
-    """
-    # Train the Model.
-    classifier.train(
-        input_fn=lambda: glovedata.train_input_fn(train_x, train_y,
-                                                  args.batch_size),
-        steps=args.train_steps)
-    
-    # Evaluate the model.
-    eval_result = classifier.evaluate(
-        input_fn=lambda: glovedata.eval_input_fn(test_x, test_y,
-                                                 args.batch_size))
-
-    print('\nTest set accuracy: {accuracy:0.3f}\n'.format(**eval_result))
-    """
     # perform a sample prediction
 
     # Generate predictions from the model
@@ -106,10 +67,8 @@ def main(argv):
     # the data is expected to be a list of feature values (as it is configured for batching)
     predict_x = dict(zip(FEATURES, [[x] for x in feature_values]))
 
-    predictions = classifier.predict(
-        input_fn=lambda: glovedata.eval_input_fn(predict_x,
-                                                 labels=None,
-                                                 batch_size=args.batch_size))
+    predict_x = tuple([[x] for x in feature_values])
+    predictions = classifier.predict(predict_x)
 
     template = '\nPrediction is "{}" ({:.1f}%), expected "{}"'
 
@@ -119,11 +78,6 @@ def main(argv):
 
         print(template.format(glovedata.GESTURES[class_id],
                               100 * probability, expec))
-
-    export_dir = classifier.export_savedmodel(
-        export_dir_base="model_export",
-        serving_input_receiver_fn=serving_input_receiver_fn)
-    print('Exported to:', export_dir)
 
     if args.run_server:
         run_server(classifier)

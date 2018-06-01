@@ -97,3 +97,15 @@ def eval_input_fn(features, labels, batch_size):
     return dataset
 
 
+def generator_evaluation_fn(generator):
+    """ An example input function to pass to predict. It must take a generator as input """
+    def _inner_input_fn():
+        datatypes = tuple(len(FEATURES) * [tf.float32])
+        dataset = tf.data.Dataset().from_generator(generator, output_types=datatypes).batch(1)
+        iterator = dataset.make_one_shot_iterator()
+        features = iterator.get_next()
+        feature_dict = dict(zip(FEATURES, features))
+        return feature_dict
+
+    return _inner_input_fn
+
