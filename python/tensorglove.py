@@ -10,7 +10,7 @@ import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--batch_size', default=100, type=int, help='batch size')
-parser.add_argument('--train_steps', default=6666, type=int,
+parser.add_argument('--train_steps', default=20000, type=int,
                     help='number of training steps')
 parser.add_argument('--run_server', default=False, help='whether to run prediction server')
 parser.add_argument('--splits', default=10, help='number of splits')
@@ -60,6 +60,7 @@ def main(argv):
 
 
     kf = KFold(n_splits=args.splits, shuffle=True)
+
     for train_idx, val_idx in kf.split(train_x_all, train_y_all):
         train_x = pd.DataFrame([train_x_all.iloc[i] for i in train_idx])
         train_y = pd.DataFrame([train_y_all.iloc[i] for i in train_idx])
@@ -70,6 +71,10 @@ def main(argv):
             # Two hidden layers of 10 nodes each.
             hidden_units=hidden_units,
             # The model must choose between 4 classes.
+            optimizer=tf.train.ProximalAdagradOptimizer(
+                learning_rate=0.1,
+                l1_regularization_strength=0.001
+            ),
             n_classes=4,
             model_dir="model_{0}_{1}".format(hidden_units[0], hidden_units[1]))
 
