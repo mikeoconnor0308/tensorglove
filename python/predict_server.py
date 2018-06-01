@@ -1,3 +1,7 @@
+"""
+Script for running the trained DNNClassifier for predictions.
+"""
+
 import argparse
 import tensorflow as tf
 import glovedata
@@ -7,8 +11,20 @@ import fastpredict
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--batch_size', default=1, type=int, help='batch size')
 parser.add_argument('--run_server', default=True, help='whether to run prediction server')
+
+
+def generator_evaluation_fn(generator):
+    """ Input function for numeric feature columns using the generator. """
+    def _inner_input_fn():
+        datatypes = tuple(len(FEATURES) * [tf.float32])
+        dataset = tf.data.Dataset().from_generator(generator, output_types=datatypes).batch(1)
+        iterator = dataset.make_one_shot_iterator()
+        features = iterator.get_next()
+        feature_dict = dict(zip(FEATURES, features))
+        return feature_dict
+
+    return _inner_input_fn
 
 
 def run_server(classifier):
@@ -29,27 +45,21 @@ def main(argv):
     """
     args = parser.parse_args(argv[1:])
 
-    # Fetch the data
-    (train_x, train_y), (test_x, test_y) = glovedata.load_data()
-
     # Feature columns describe how to use the input.
     my_feature_columns = []
-    for key in train_x.keys():
+    for key in glovedata.FEATURES.keys():
         my_feature_columns.append(tf.feature_column.numeric_column(key=key))
 
     hidden_units = [18,20]
-    model_dir = "model_best"
+    model_dir = "model"
 
+    # Wrap the classifier in the FastPredict class to improve prediction speeds.
     classifier = fastpredict.FastPredict(tf.estimator.DNNClassifier(
         feature_columns=my_feature_columns,
-        # Two hidden layers of 10 nodes each.
         hidden_units=hidden_units,
-        # The model must choose between 4 classes.
         n_classes=4,
-        model_dir=model_dir), glovedata.generator_evaluation_fn
+        model_dir=model_dir), generator_evaluation_fn
     )
-
-    # perform a sample prediction
 
     # Generate predictions from the model
     expected = ['Fist']
@@ -64,8 +74,6 @@ def main(argv):
                       5.960465E-08, 5.960463E-08, -0.5976215, 0.8017784, -2.235174E-08, -5.960464E-08, 4.470348E-08, 1,
                       -0.1217117, 0.1238547, -0.6902609, 0.7024146, -5.029142E-08, 3.725291E-08, -0.819152, 0.5735765,
                       5.215406E-08, 5.960463E-08, -0.6427875, 0.7660446]
-    # the data is expected to be a list of feature values (as it is configured for batching)
-    predict_x = dict(zip(FEATURES, [[x] for x in feature_values]))
 
     predict_x = tuple([[x] for x in feature_values])
     predictions = classifier.predict(predict_x)

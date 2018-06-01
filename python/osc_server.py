@@ -21,9 +21,7 @@ class OscServer:
         :return:
         """
         print('Message received', args)
-        # expects a list of all the features, in the order of the feature list.
-        # old way of doing things.
-        # predict_x = dict(zip(FEATURES, [[float(x)] for x in args]))
+        # construct a tuple of the features, which will be yielded by the generator.
         predict_x = tuple([[float(x)] for x in args])
         # perform the prediction.
         predictions = self.classifier.predict(predict_x)

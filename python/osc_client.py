@@ -6,6 +6,7 @@ from pythonosc import osc_server
 import json
 import time
 
+
 def prediction(unused_addr, args):
     print("Prediction received: ", args)
 
