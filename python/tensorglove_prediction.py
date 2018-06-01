@@ -7,7 +7,7 @@ import fastpredict
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--batch_size', default=100, type=int, help='batch size')
+parser.add_argument('--batch_size', default=1, type=int, help='batch size')
 parser.add_argument('--run_server', default=True, help='whether to run prediction server')
 
 
