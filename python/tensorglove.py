@@ -3,14 +3,17 @@ import tensorflow as tf
 import glovedata
 from glovedata import FEATURES
 import tensorglove_osc_server
-
-
+from sklearn.model_selection import KFold
+import numpy as np
+import pandas as pd
+import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--batch_size', default=100, type=int, help='batch size')
-parser.add_argument('--train_steps', default=2000, type=int,
+parser.add_argument('--train_steps', default=20000, type=int,
                     help='number of training steps')
-parser.add_argument('--run_server', default=True, help='whether to run prediction server')
+parser.add_argument('--run_server', default=False, help='whether to run prediction server')
+parser.add_argument('--splits', default=10, help='number of splits')
 
 
 def serving_input_receiver_fn():
@@ -44,50 +47,50 @@ def main(argv):
     :param argv: Command line arguments.
     :return:
     """
+    global hidden_units
     args = parser.parse_args(argv[1:])
 
     # Fetch the data
-    (train_x, train_y), (test_x, test_y) = glovedata.load_data()
+    (train_x_all, train_y_all), (test_x, test_y) = glovedata.load_data()
 
     # Feature columns describe how to use the input.
     my_feature_columns = []
-    for key in train_x.keys():
+    for key in train_x_all.keys():
         my_feature_columns.append(tf.feature_column.numeric_column(key=key))
 
-    hidden_units = [12,12]
-    model_dir = "model_{0}_{1}".format(hidden_units[0],hidden_units[1])
-    hidden_units = [12, 10]
 
-    # Build 2 hidden layer DNN with 10, 10 units respectively.
-    classifier = tf.estimator.DNNClassifier(
-        feature_columns=my_feature_columns,
-        # Two hidden layers of 10 nodes each.
-        hidden_units=hidden_units,
-        # The model must choose between 4 classes.
-        n_classes=4,
-        model_dir=model_dir)
+    kf = KFold(n_splits=args.splits, shuffle=True)
 
+    for train_idx, val_idx in kf.split(train_x_all, train_y_all):
+        train_x = pd.DataFrame([train_x_all.iloc[i] for i in train_idx])
+        train_y = pd.DataFrame([train_y_all.iloc[i] for i in train_idx])
 
+        # Build 2 hidden layer DNN with 10, 10 units respectively.
+        classifier = tf.estimator.DNNClassifier(
+            feature_columns=my_feature_columns,
+            # Two hidden layers of 10 nodes each.
+            hidden_units=hidden_units,
+            # The model must choose between 4 classes.
+            optimizer=tf.train.ProximalAdagradOptimizer(
+                learning_rate=0.1,
+                l1_regularization_strength=0.001
+            ),
+            n_classes=4,
+            model_dir="model_{0}_{1}".format(hidden_units[0], hidden_units[1]))
 
+        # Train the Model.
+        classifier.train(
+            input_fn=lambda: glovedata.train_input_fn(train_x, train_y,
+                                                      args.batch_size),
+            steps=args.train_steps)
 
-    #for dataset in blah: for text_x and test_y
+        # Evaluate the model.
+        eval_result = classifier.evaluate(
+            input_fn=lambda: glovedata.eval_input_fn(test_x, test_y,
+                                                     args.batch_size))
 
-    model_dir="model_{0}_{1}".format(hidden_units[0], hidden_units[1])
+        print('\nTest set accuracy: {accuracy:0.3f}\n'.format(**eval_result))
 
-    """
-    # Train the Model.
-    classifier.train(
-        input_fn=lambda: glovedata.train_input_fn(train_x, train_y,
-                                                  args.batch_size),
-        steps=args.train_steps)
-    
-    # Evaluate the model.
-    eval_result = classifier.evaluate(
-        input_fn=lambda: glovedata.eval_input_fn(test_x, test_y,
-                                                 args.batch_size))
-
-    print('\nTest set accuracy: {accuracy:0.3f}\n'.format(**eval_result))
-    """
     # perform a sample prediction
 
     # Generate predictions from the model
@@ -130,5 +133,7 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    tf.logging.set_verbosity(tf.logging.INFO)
-    tf.app.run(main)
+    #tf.logging.set_verbosity(tf.logging.INFO)
+    #tf.app.run(main)
+    hidden_units = [18, 20]
+    main(sys.argv)
