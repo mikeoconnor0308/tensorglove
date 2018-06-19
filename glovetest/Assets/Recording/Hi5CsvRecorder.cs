@@ -84,16 +84,18 @@ namespace Recording
 
 		private void InitialiseWriter(bool left, GestureType gesture)
 		{
+			var path = Application.dataPath + @"..\..\..\python\data\";
+
 			if (left)
 			{
-				
-				csvLeftWriter = new CsvFileWriter("C:\\Users\\Mike.DESKTOP-CA70LTI\\Code\\iSci\\research\\nsb\\glovetest\\TrainingData\\" + "left_" + gesture + "_" +  System.DateTime.Now.ToString("yyyyMMddHHmmss"));
+
+				csvLeftWriter = new CsvFileWriter(path + "left_" + gesture + "_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + ".csv");
 				Debug.Log("Writing to path: " + Application.dataPath);
 				WriteHeader(csvLeftWriter, leftHand);
 			}
 			else
 			{
-				csvRightWriter = new CsvFileWriter("C:\\Users\\Mike.DESKTOP-CA70LTI\\Code\\iSci\\research\\nsb\\glovetest\\TrainingData\\" + "right_" + gesture + "_" +  System.DateTime.Now.ToString("yyyyMMddHHmmss"));
+				csvRightWriter = new CsvFileWriter(path + "right_" + gesture + "_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + ".csv");
 				Debug.Log("Writing to path: " + Application.dataPath);
 				WriteHeader(csvRightWriter, rightHand);
 			}

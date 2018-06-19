@@ -1,5 +1,4 @@
 from tensorflow.contrib import predictor
-from glovedata import FEATURES,GESTURES
 from pythonosc import dispatcher
 from pythonosc import osc_server
 from pythonosc import udp_client
@@ -22,21 +21,21 @@ class OscServer:
         print('Message received', args)
         hand = str(args[0])
         # construct a tuple of the features, which will be yielded by the generator.
-        predict_x = tuple([[float(x)] for x in args[1:]])
+        predict_x = tuple([[float(x)] for x in args[1]])
         # perform the prediction.
-
-        if hand.lower == 'right':
+        print(hand.lower())
+        if hand.lower() == 'right':
             predictions = self.classifier.predict(predict_x)
-        elif hand.lower == 'left':
+        elif hand.lower() == 'left':
             predictions = self.left_classifier.predict(predict_x)
         self.i = self.i + 1
 
         for pred_dict in predictions:
             class_id = pred_dict['class_ids'][0]
             probability = pred_dict['probabilities'][class_id]
-            print('Sending prediction:', class_id)
+            print('Sending prediction:', hand, class_id)
             # send the prediction back.
-            self.client.send_message("/prediction", hand, int(class_id))
+            self.client.send_message("/prediction", [hand, int(class_id)])
 
     def __init__(self, address, port, classifier, left_classifier):
         """

@@ -5,25 +5,39 @@ Script for running the trained DNNClassifier for predictions.
 import argparse
 import tensorflow as tf
 import glovedata
-from glovedata import FEATURES
+from glovedata import FEATURES_LEFT, FEATURES_RIGHT
 import osc_server
 import fastpredict
 import training
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--run_server', default=True, help='whether to run prediction server')
-parser.add_argument('--model_dir', default="model", help='directory model was saved in.')
+parser.add_argument('--model_dir_left', default="model_left", help='directory model for left hand was saved in.')
+parser.add_argument('--model_dir_right', default="model_right", help='directory model for right hand was saved in.')
 
-
-def generator_evaluation_fn(generator):
+def generator_evaluation_fn_left(generator):
     """ Input function for numeric feature columns using the generator. """
 
     def _inner_input_fn():
-        datatypes = tuple(len(FEATURES) * [tf.float32])
+        datatypes = tuple(len(FEATURES_LEFT) * [tf.float32])
         dataset = tf.data.Dataset().from_generator(generator, output_types=datatypes).batch(1)
         iterator = dataset.make_one_shot_iterator()
         features = iterator.get_next()
-        feature_dict = dict(zip(FEATURES, features))
+        feature_dict = dict(zip(FEATURES_LEFT, features))
+        return feature_dict
+
+    return _inner_input_fn
+
+
+def generator_evaluation_fn_right(generator):
+    """ Input function for numeric feature columns using the generator. """
+
+    def _inner_input_fn():
+        datatypes = tuple(len(FEATURES_RIGHT) * [tf.float32])
+        dataset = tf.data.Dataset().from_generator(generator, output_types=datatypes).batch(1)
+        iterator = dataset.make_one_shot_iterator()
+        features = iterator.get_next()
+        feature_dict = dict(zip(FEATURES_RIGHT, features))
         return feature_dict
 
     return _inner_input_fn
@@ -48,25 +62,30 @@ def main(argv):
     args = parser.parse_args(argv[1:])
 
     # Feature columns describe how to use the input.
-    my_feature_columns = []
-    for key in glovedata.FEATURES:
-        my_feature_columns.append(tf.feature_column.numeric_column(key=key))
+    my_feature_columns_left = []
+    for key in glovedata.FEATURES_LEFT:
+        my_feature_columns_left.append(tf.feature_column.numeric_column(key=key))
+
+    my_feature_columns_right = []
+    for key in glovedata.FEATURES_RIGHT:
+        my_feature_columns_right.append(tf.feature_column.numeric_column(key=key))
+
 
     hidden_units = training.hidden_units
 
     # Wrap the classifier in the FastPredict class to improve prediction speeds.
     classifier = fastpredict.FastPredict(tf.estimator.DNNClassifier(
-        feature_columns=my_feature_columns,
+        feature_columns=my_feature_columns_right,
         hidden_units=hidden_units,
         n_classes=4,
-        model_dir="model_right"), generator_evaluation_fn
+        model_dir=args.model_dir_right), generator_evaluation_fn_right
     )
 
-    left_classifier  = fastpredict.FastPredict(tf.estimator.DNNClassifier(
-        feature_columns=my_feature_columns,
+    left_classifier = fastpredict.FastPredict(tf.estimator.DNNClassifier(
+        feature_columns=my_feature_columns_left,
         hidden_units=hidden_units,
         n_classes=4,
-        model_dir="model_left"), generator_evaluation_fn
+        model_dir=args.model_dir_left), generator_evaluation_fn_left
     )
 
     # Generate predictions from the model
