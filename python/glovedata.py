@@ -37,7 +37,21 @@ FEATURES = ["Human_RightForeArm_Quat_X", "Human_RightForeArm_Quat_Y", "Human_Rig
             "Human_RightInHandPinky3_Quat_W"]
 
 
-def load_data(path="./data/*.csv", y_name='Gesture'):
+def load_data(right_path="./data/right_*.csv", left_path="./data/left_*.csv", y_name='Gesture'):
+    """
+    Reads data files in the given path for left and right hands, and returns the dataset as (train_left_x,
+    train_left__y), (test_left_x, test_left_y), (train_right_x, train_right__y), (test_right_x, test_right_y).
+    :param
+    path: Path to files :param y_name: Target feature name :return: Dataset
+    """
+
+    (train_left_x, train_left_y), (test_left_x, test_left_y) = _load_data(left_path)
+    (train_right_x, train_right_y), (test_right_x, test_right_y) = _load_data(right_path)
+
+    return (train_left_x, train_left_y), (test_left_x, test_left_y), (train_right_x, train_right_y), (test_right_x, test_right_y)
+
+
+def _load_data(path, y_name='Gesture'):
     """
     Reads data files in the given path, and returns the dataset as (train_x, train_y), (test_x, test_y).
     :param path: Path to files
@@ -50,7 +64,7 @@ def load_data(path="./data/*.csv", y_name='Gesture'):
     # convert strings to ints.
     # {'None': 0, 'Fist': 1, 'Click': 2, 'Point': 3}
     mapping = dict(zip(GESTURES, range(len(GESTURES))))
-    data.replace({y_name: mapping}, inplace = True)
+    data.replace({y_name: mapping}, inplace=True)
     data.convert_objects()
 
     # split up data in a 4/5 split.
@@ -60,41 +74,3 @@ def load_data(path="./data/*.csv", y_name='Gesture'):
     test_x, test_y = test, test.pop(y_name)
     test_y.convert_objects()
     return (train_x, train_y), (test_x, test_y)
-
-
-def train_input_fn(features, labels, batch_size):
-    """
-    An input function for training the neural network.
-    """
-    # Convert the inputs to a Dataset.
-    dataset = tf.data.Dataset.from_tensor_slices((dict(features), labels))
-
-    # Shuffle, repeat, and batch the examples.
-    dataset = dataset.shuffle(1000).repeat().batch(batch_size)
-
-    # Return the dataset.
-    return dataset
-
-
-def eval_input_fn(features, labels, batch_size):
-    """
-    An input function for evaluation or prediction
-    """
-    features = dict(features)
-    if labels is None:
-        # No labels, use only features.
-        inputs = features
-    else:
-        inputs = (features, labels)
-
-    # Convert the inputs to a Dataset.
-    dataset = tf.data.Dataset.from_tensor_slices(inputs)
-
-    # Batch the examples
-    assert batch_size is not None, "batch_size must not be None"
-    dataset = dataset.batch(batch_size)
-
-    # Return the dataset.
-    return dataset
-
-
