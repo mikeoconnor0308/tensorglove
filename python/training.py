@@ -56,6 +56,9 @@ def main(argv):
     # Fetch the data
     (train_x_all, train_y_all), (test_x, test_y) = glovedata.load_data()
 
+
+def train(training_x, training_y,  test_x, test_y, model_dir, feature_keys):
+    # train the left hand
     # Feature columns describe how to use the input.
     my_feature_columns = []
     for key in train_x_all.keys():
@@ -69,7 +72,7 @@ def main(argv):
             l1_regularization_strength=0.001
         ),
         n_classes=4,
-        model_dir="model")
+        model_dir=model_dir)
 
     print("Training model")
     # Train the Model.
@@ -101,7 +104,7 @@ def main(argv):
                       -0.1217117, 0.1238547, -0.6902609, 0.7024146, -5.029142E-08, 3.725291E-08, -0.819152, 0.5735765,
                       5.215406E-08, 5.960463E-08, -0.6427875, 0.7660446]
     # the data is expected to be a list of feature values (as it is configured for batching)
-    predict_x = dict(zip(FEATURES, [[x] for x in feature_values]))
+    predict_x = dict(zip(feature_keys, [[x] for x in feature_values]))
 
     predictions = classifier.predict(
         input_fn=lambda: eval_input_fn(predict_x,

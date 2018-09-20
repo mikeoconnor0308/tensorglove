@@ -17,4 +17,10 @@ glovetest/ProjectSettings/
 
 python/model_best/
 
+binaries/
+
+python/model_left/
+
+python/model_right/
+
 \.DS_Store
